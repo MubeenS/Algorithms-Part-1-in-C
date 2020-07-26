@@ -20,7 +20,7 @@ int compareTo(const void *pp1,const void *pp2) {
 }
 float slope(point *p1,point *p2) {
     if(p2->y==p1->y && p2->x!=p1->x) return 0;//horizontal line segment
-   else if(p2->x==p1->x && p2->y!=p1->y) return inf; //verticl line segment
+   else if(p2->x==p1->x && p2->y!=p1->y) return inf; //vertical line segment
    else if(p2->x==p1->x && p2->y==p1->y) return -inf;//point to itself
    else 
    return (p2->y-p1->y)/((float)(p2->x-p1->x));
@@ -49,7 +49,7 @@ int fastCollinearPoints(point *p,int n)  {
     for(i=0;i<n;i++) copy[i]=p[i];
      int numOfSeg=0;
      qsort(copy,n,sizeof(point),compareTo);
-     /*for(int k=0;k<n;k++){ //tp display sorted copy as per points
+     /*for(int k=0;k<n;k++){ //to display sorted copy as per points
         printf("\t");
         display(&copy[k]);
     }
