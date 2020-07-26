@@ -43,48 +43,54 @@ bool collinear(point *p,point *p1,point *p2,point *p3){
 void display (point *p){
 	printf("(%d, %d)",p->x,p->y);
 }
-int fastCollinearPoints(point *p,int n)  {
-    point copy[n];
+int fastCollinearPoints(point *p,int size)  {
+    point copy[size];
     int i,j;
-    for(i=0;i<n;i++) copy[i]=p[i];
+    for(i=0;i<size;i++) copy[i]=p[i];
      int numOfSeg=0;
-     qsort(copy,n,sizeof(point),compareTo);
-     for(int k=0;k<n;k++){ //to display sorted copy as per points
-        printf("\t");
+     qsort(copy,size,sizeof(point),compareTo);
+     for(int k=0;k<size;k++){ //to display sorted copy as per points
         display(&copy[k]);
+         printf("\t");
     }
     printf("\n");
-    for(i=0;i<n;i++){
-    qsort_r(copy,n,sizeof(point),slopeOrder,&copy[i]);
-    for(int k=0;k<n;k++){ //to display sorted copy as per points
-        printf("\t");
-        display(&copy[k]);
-    }
-    printf("\n");
-    float currSlope=slope(&p[i],&copy[1]);
-    float prevSlope=currSlope;
-    int count=0;
-       for(j=1;j<n-i;j++){//ignoring copy[0] as slope with itself will be smallest
-           if(slope(&p[i],&copy[j])==currSlope){
-               count++;
-           }
-           //counting from new set of slopes
-           else { 
-           //to display line segment that has more than 3 collinear points
-               if(count>=3) { 
-                   display(&p[i]); printf("-> "); display(&copy[j-1]); 
-                   printf("\n");
-               }
-                count=0;
-               
-               currSlope = slope(&p[i],&copy[j]);
-               prevSlope = currSlope;
-           }
-           if(count>=3) {
-              if(numOfSeg==0) numOfSeg++; //for first set of line segments
-              if(prevSlope!=currSlope) numOfSeg;  //for other sets of collinears
-           }
-       } 
+    point slopeSorted[size-1];
+    for(int i=0;i<size;i++) {
+        int idx = 0;
+		int numOfCollinear = 0;
+		int lastIndex = 0;
+		for(int k=0;k<size;k++) { //copy all except reference point
+		    if(k==i)
+		    continue;  printf("check for segfault\t");
+		    slopeSorted[idx++] = copy[k];
+		}
+		qsort_r(slopeSorted,idx,sizeof(point),slopeOrder,&copy[i]);
+		for (int k = 1; k < idx; k++) {
+		    if(slope(&slopeSorted[i],&copy[k])!=slope(&slopeSorted[i],&copy[k-1])){
+		        
+		    }else {
+		        numOfCollinear++;
+		        lastIndex=k;
+		        if (numOfCollinear > 1) {
+						float slopeToLast = slope(&copy[i],&slopeSorted[lastIndex]);
+						bool maxSegment = true;
+						int numOfSame = 0;
+						for (int n = 0; n < size; n++)
+							if (slope(&copy[i],&slopeSorted[lastIndex]) == slope(&copy[i],&copy[n]))
+								numOfSame++;
+						for (int m = i-1; m >= 0; m--) {
+							if (slope(&slopeSorted[lastIndex],&copy[m]) == slopeToLast)
+								maxSegment = false;
+						}
+						
+						if (maxSegment && numOfCollinear+2 == numOfSame+1) {
+                            display(&copy[i]); printf("-> "); display(&slopeSorted[lastIndex]);	
+						}
+				}
+		    }
+		    if (k < idx && slope(&copy[i],&slopeSorted[k]) != slope(&copy[i],&slopeSorted[k+1])) 
+					numOfCollinear = 0;
+		}
     }
 }
 
