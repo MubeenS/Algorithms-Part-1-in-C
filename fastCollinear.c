@@ -18,7 +18,7 @@ point* compareTo(point *p1,point *p2) {
 }
 float slope(point *p1,point *p2) {
     if(p2->y==p1->y && p2->x!=p1->x) return 0;//horizontal line segment
-   else if(p2->x==p1->x && p2->y!=p1->y) return inf; //verticl line segment
+   else if(p2->x==p1->x && p2->y!=p1->y) return inf; //vertical line segment
    else if(p2->x==p1->x && p2->y==p1->y) return -inf;//point to itself
    else 
    return (p2->y-p1->y)/((float)(p2->x-p1->x));
