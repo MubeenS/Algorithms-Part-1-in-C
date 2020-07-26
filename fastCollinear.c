@@ -30,7 +30,7 @@ int slopeOrder(const void *p11,const void *p22,void *arg) {
 	point *p1 = (point *) p11;
 	point *p2 = (point *) p22;
 	point *p= (point*) p;
-    int a=slope(p,p1),b=slope(p,p2);
+    float a=slope(p,p1),b=slope(p,p2);
     if(a<b) return -1;
     else if(a>b) return 1;
     else return 0;
@@ -49,14 +49,18 @@ int fastCollinearPoints(point *p,int n)  {
     for(i=0;i<n;i++) copy[i]=p[i];
      int numOfSeg=0;
      qsort(copy,n,sizeof(point),compareTo);
-     /*for(int k=0;k<n;k++){ //to display sorted copy as per points
+     for(int k=0;k<n;k++){ //to display sorted copy as per points
         printf("\t");
         display(&copy[k]);
     }
-    printf("\n");*/
+    printf("\n");
     for(i=0;i<n;i++){
     qsort_r(copy,n,sizeof(point),slopeOrder,&copy[i]);
-    
+    for(int k=0;k<n;k++){ //to display sorted copy as per points
+        printf("\t");
+        display(&copy[k]);
+    }
+    printf("\n");
     float currSlope=slope(&p[i],&copy[1]);
     float prevSlope=currSlope;
     int count=0;
