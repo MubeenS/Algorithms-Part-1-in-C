@@ -29,7 +29,8 @@ float slope(point *p1,point *p2) {
 int slopeOrder(const void *p1_,const void *p2_) {
     point *p1 = (point *) p1_;
     point *p2 = (point *) p2_;
-    int a=slope(p,p1),b=slope(p,p2);
+    point *p = p1.ref;
+    float a=slope(p,p1),b=slope(p,p2);
     if(a<b) return 1;
     else if(a>b) return -1;
     else return 0;
@@ -42,9 +43,15 @@ bool collinear(point *p,point *p1,point *p2,point *p3){
 void display (point *p){
 	printf("(%d, %d)",p->x,p->y);
 }
-int FastCollinearPoints (point *p,int n) {
-    
-    
+int FastCollinearPoints (point *p,int size) {
+    qsort(p,size,sizeof(point),compareTo);
+    //to display sorted copy as per points
+    for(int k=0;k<n;k++){
+        printf("\t");
+        display(&p[k]);
+    }
+    printf("\n");
+    //display ends
 }
 int main () {
     
