@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-
+//input 8 10000 0 0 10000 3000 7000 7000 3000 3000 4000 20000 21000 14000 15000 6000 7000
+//input 6 19000 10000 18000 10000 32000 10000 21000 10000 1234 5678 14000 10000
 #define inf INFINITY
 typedef struct point_ {
     int x;
@@ -47,7 +48,8 @@ void display (point *p){
 void FastCollinearPoints (point *p,int size) {
     qsort(p,size,sizeof(point),compareTo);
     //to display sorted p as per points
-    for(int k=0;k<size;k++){
+    int k;
+    for(k=0;k<size;k++){
         printf("\t");
         display(&p[k]);
     }
@@ -64,26 +66,32 @@ void FastCollinearPoints (point *p,int size) {
          idx++;
         }
         qsort(copy,idx,sizeof(point),slopeOrder);
-    currSlope=slope(&copy[0],&p[i]);
-    int s=0,count=0; point sameSlope[idx];
-        for(k=1;k<idx;k++) {
+    float currSlope=slope(&copy[0],&p[i]);
+    int s=0,k,count=0; point sameSlope[idx];
+        for(k=1;k<idx+1;k++) {
+        	  printf("%f ",slope(&copy[k],&p[i]));
             if(slope(&copy[k],&p[i])==currSlope) {
               count++;
-              if(k==1) sameSlope[s++]=copy[0];
+              if(k==1) {
+			  sameSlope[s++]=copy[0];
+			  count++;
+		      }
               sameSlope[s++]=copy[k];
             }
             else {
+            
                 if(count>=3) {
                     qsort(sameSlope,s,sizeof(point),compareTo);
-                    display(&sameSlope[0]); printf("-> "); display(&Sameslope[s-1]);
+                    display(&sameSlope[0]); printf("-> "); 
+                    display(&sameSlope[s-1]);
                 }
                 count=0;
-                currSlope=slope(&p[i],copy[k]);
+                currSlope=slope(&p[i],&copy[k]);
                 s=0;
-            }
-                }
-            }
-        }
+           }
+           printf("%d ",count);
+        }printf("\n");
+    }
 }
 int main () {
     
