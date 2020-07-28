@@ -13,8 +13,8 @@ typedef struct point_ {
 }point;
 
 typedef struct lineSegment {
-	point start;
-	point end;
+	point *start;
+	point *end;
 }lineSeg;
 
 int compareTo(const void *pp1,const void *pp2) {
@@ -46,7 +46,10 @@ bool equalpoint(point *p1,point *p2) {
 	if(p1->x==p2->x && p1->y==p2->y) return true;
 	return false;
 }
-
+bool segsEqual(lineSeg *l1,lineSeg *l2 ) {
+ if(equalpoint(l1->start,l2->start) && equalpoint(l1->end,l2->end)) return true ;
+ return false;
+}
 bool collinear(point *p,point *p1,point *p2,point *p3){
     if(slope(p,p1)==slope(p1,p2) && slope(p1,p2)==slope(p2,p3)) return true;
     else return false;
@@ -66,6 +69,8 @@ void FastCollinearPoints (point *p,int size) {
     //display ends
     int i;
     point copy[size-1];
+    lineSeg l[size-1];
+    int lindex=0;
     for(i=0;i<size;i++) {
         int idx=0,j;
         for(j=0;j<size;j++) {
@@ -82,29 +87,31 @@ void FastCollinearPoints (point *p,int size) {
     printf("\n");
     float currSlope=slope(&copy[0],&p[i]);
     //printf("%d",currSlope);
-    int s=0,k,count=0; point sameSlope[idx];
+    int s=0,k,count=1; point sameSlope[idx];
+    sameSlope[s++]=p[i];
         for(k=1;k<idx;k++) {
         	  //printf("%f ",slope(&copy[k],&p[i]));
             if(slope(&copy[k],&p[i])==currSlope) {
               count++;
               if(k==1) {
-			  sameSlope[s++]=copy[0];
 			  count++;
 		      }
+		      sameSlope[s++]=copy[k-1];
               sameSlope[s++]=copy[k];
             }
             else {
             
                 if(count>=3) {
                     qsort(sameSlope,s,sizeof(point),compareTo);
-                    display(&sameSlope[0]); printf("-> "); 
-                    display(&sameSlope[s-1]);
+                    lineSeg t;
+                    int d;
+                    printf("\n");
+                    display(&sameSlope[0]); printf("-> "); display(&sameSlope[s-1]);
                 }
-                count=0;
+                count=1;
                 currSlope=slope(&p[i],&copy[k]);
-                s=0;
            }
-           printf("%d ",count);
+           //printf("c=%d ",count);
         }printf("\n");
     }
 }
