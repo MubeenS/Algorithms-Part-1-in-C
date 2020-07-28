@@ -30,10 +30,10 @@ float slope(point *p1,point *p2) {
 int slopeOrder(const void *p1_,const void *p2_) {
     point *p1 = (point *) p1_;
     point *p2 = (point *) p2_;
-    float a=slope(p1->ref,p1);
-    float b=slope(p2->ref,p2);
-    if(a<b) return 1;
-    else if(a>b) return -1;
+    float a=slope(p1,p1->ref);
+    float b=slope(p2,p2->ref);
+    if(a<b) return -1;
+    else if(a>b) return 1;
     else return 0;
 }
 
@@ -53,23 +53,37 @@ void FastCollinearPoints (point *p,int size) {
     }
     printf("\n");
     //display ends
-    int i,idx=0;
+    int i;
     point copy[size-1];
-    for(i=1;i<size;i++) { 
-        copy[idx]=p[i];
-         copy[idx].ref = &p[0];
-        idx++;
-    }
-    //to display sorted copy as per points
-    for(int k=0;k<idx;k++){
-        printf("\t");
-        display(&copy[k]); 
-        printf("ref");
-     printf("(%d,%d)",copy[k].ref->x,copy[k].ref->y);  
-        
-    }
-    printf("\n");
-    //display ends
+    for(i=0;i<size;i++) {
+        int idx=0,j;
+        for(j=0;j<size;j++) {
+            if(i==j) continue;
+        copy[idx]=p[j];
+        copy[idx].ref = &p[i];
+         idx++;
+        }
+        qsort(copy,idx,sizeof(point),slopeOrder);
+    currSlope=slope(&copy[0],&p[i]);
+    int s=0,count=0; point sameSlope[idx];
+        for(k=1;k<idx;k++) {
+            if(slope(&copy[k],&p[i])==currSlope) {
+              count++;
+              if(k==1) sameSlope[s++]=copy[0];
+              sameSlope[s++]=copy[k];
+            }
+            else {
+                if(count>=3) {
+                    qsort(sameSlope,s,sizeof(point),compareTo);
+                    display(&sameSlope[0]); printf("-> "); display(&Sameslope[s-1]);
+                }
+                count=0;
+                currSlope=slope(&p[i],copy[k]);
+                s=0;
+            }
+                }
+            }
+        }
 }
 int main () {
     
