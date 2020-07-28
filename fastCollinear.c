@@ -107,9 +107,10 @@ void FastCollinearPoints (point *p,int size) {
 					}
 					if(check==1 || lindex==0) {
 						printf("Entered if");
-						
-						l[lindex].start = &sameSlope[0];
-						l[lindex].end  =  &sameSlope[s-1];
+						l[lindex].start->x = sameSlope[0].x;
+						l[lindex].start->y = sameSlope[0].y;
+						l[lindex].end->x  =  sameSlope[s-1].x;
+						l[lindex].end->y  =  sameSlope[s-1].y;
 							lindex++;
 						printf("l=%d ",lindex);
 					}
