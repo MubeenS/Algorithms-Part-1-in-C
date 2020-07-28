@@ -12,6 +12,11 @@ typedef struct point_ {
     
 }point;
 
+typedef struct lineSegment {
+	point start;
+	point end;
+}lineSeg;
+
 int compareTo(const void *pp1,const void *pp2) {
     point *p1 = (point *) pp1;
     point *p2 = (point *) pp2;
@@ -37,13 +42,17 @@ int slopeOrder(const void *p1_,const void *p2_) {
     else if(a>b) return 1;
     else return 0;
 }
+bool equalpoint(point *p1,point *p2) {
+	if(p1->x==p2->x && p1->y==p2->y) return true;
+	return false;
+}
 
 bool collinear(point *p,point *p1,point *p2,point *p3){
     if(slope(p,p1)==slope(p1,p2) && slope(p1,p2)==slope(p2,p3)) return true;
     else return false;
 }
 void display (point *p){
-	printf("(%d, %d)",p->x,p->y);
+	printf("(%d,%d)",p->x,p->y);
 }
 void FastCollinearPoints (point *p,int size) {
     qsort(p,size,sizeof(point),compareTo);
@@ -66,10 +75,16 @@ void FastCollinearPoints (point *p,int size) {
          idx++;
         }
         qsort(copy,idx,sizeof(point),slopeOrder);
+         for(k=0;k<idx;k++){
+        printf("  ");
+        display(&copy[k]);printf("%.2f ",slope(&copy[k],&p[i]));
+    }
+    printf("\n");
     float currSlope=slope(&copy[0],&p[i]);
+    //printf("%d",currSlope);
     int s=0,k,count=0; point sameSlope[idx];
-        for(k=1;k<idx+1;k++) {
-        	  printf("%f ",slope(&copy[k],&p[i]));
+        for(k=1;k<idx;k++) {
+        	  //printf("%f ",slope(&copy[k],&p[i]));
             if(slope(&copy[k],&p[i])==currSlope) {
               count++;
               if(k==1) {
