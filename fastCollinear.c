@@ -56,9 +56,8 @@ void FastCollinearPoints (point *p,int size) {
     int i,idx=0;
     point copy[size-1];
     for(i=1;i<size;i++) { 
-       copy[idx].ref = &p[0];
         copy[idx]=p[i];
-         
+         copy[idx].ref = &p[0];
         idx++;
     }
     //to display sorted copy as per points
