@@ -50,29 +50,18 @@ bool segsEqual(lineSeg *l1,lineSeg *l2 ) {
  if(equalpoint(l1->start,l2->start) && equalpoint(l1->end,l2->end)) return true ;
  return false;
 }
-bool collinear(point *p,point *p1,point *p2,point *p3){
-    if(slope(p,p1)==slope(p1,p2) && slope(p1,p2)==slope(p2,p3)) return true;
-    else return false;
-}
+
 void display (point *p){
 	printf("(%d,%d)",p->x,p->y);
 }
 void FastCollinearPoints (point *p,int size) {
     qsort(p,size,sizeof(point),compareTo);
-    //to display sorted p as per points
-    int k;
-    for(k=0;k<size;k++){
-        printf("\t");
-        display(&p[k]);
-    }
-    printf("\n");
-    //display ends
     int i;
     point copy[size-1];
     lineSeg l[size-1];
     int lindex=0;
     for(i=0;i<size;i++) {
-        int idx=0,j;
+        int idx=0,j,k;
         for(j=0;j<size;j++) {
             if(i==j) continue;
         copy[idx]=p[j];
@@ -86,11 +75,9 @@ void FastCollinearPoints (point *p,int size) {
     }
     printf("\n");
     float currSlope=slope(&copy[0],&p[i]);
-    //printf("%d",currSlope);
-    int s=0,k,count=1; point sameSlope[idx];
+    int s=0,count=1; point sameSlope[idx];
     sameSlope[s++]=p[i];
         for(k=1;k<idx;k++) {
-        	  //printf("%f ",slope(&copy[k],&p[i]));
             if(slope(&copy[k],&p[i])==currSlope) {
               count++;
               if(k==1) {
@@ -103,17 +90,40 @@ void FastCollinearPoints (point *p,int size) {
             
                 if(count>=3) {
                     qsort(sameSlope,s,sizeof(point),compareTo);
-                    lineSeg t;
-                    int d;
-                    printf("\n");
-                    display(&sameSlope[0]); printf("-> "); display(&sameSlope[s-1]);
+                    display(l[0].start); printf("-> "); display(l[0].end);
+                    lineSeg temp;
+                    temp.start= &sameSlope[0]; 
+                    temp.end = &sameSlope[s-1];
+                    int check=1; int m;
+                    display(l[0].start); printf("-> "); display(l[0].end);
+                    for(m=0;m<lindex;m++) {
+                    	if(segsEqual(&l[m],&temp)==true) {
+                    			printf("l=%d ",lindex);
+                    		  display(temp.start); printf("-> "); display(temp.end);
+                    		printf("Ever entered");
+                    		check=0;
+							break;
+						}	
+					}
+					if(check==1 || lindex==0) {
+						printf("Entered if");
+						
+						l[lindex].start = &sameSlope[0];
+						l[lindex].end  =  &sameSlope[s-1];
+							lindex++;
+						printf("l=%d ",lindex);
+					}
                 }
                 count=1;
                 currSlope=slope(&p[i],&copy[k]);
-           }
-           //printf("c=%d ",count);
+           }      
         }printf("\n");
     }
+    int d;
+    for(d=0;d<lindex;d++) {
+    	display(l[d].start); printf("->"); display(l[d].end);
+    	printf("\n");
+	}
 }
 int main () {
     
