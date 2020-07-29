@@ -13,8 +13,8 @@ typedef struct point_ {
 }point;
 
 typedef struct lineSegment {
-	point *start;
-	point *end;
+	point start;
+	point end;
 }lineSeg;
 
 int compareTo(const void *pp1,const void *pp2) {
@@ -27,7 +27,7 @@ int compareTo(const void *pp1,const void *pp2) {
 }
 float slope(point *p1,point *p2) {
     if(p2->y==p1->y && p2->x!=p1->x) return 0;//horizontal line segment
-   else if(p2->x==p1->x && p2->y!=p1->y) return inf; //verticl line segment
+   else if(p2->x==p1->x && p2->y!=p1->y) return inf; //vertical line segment
    else if(p2->x==p1->x && p2->y==p1->y) return -inf;//point to itself
    else 
    return (p2->y-p1->y)/((float)(p2->x-p1->x));
@@ -42,8 +42,8 @@ int slopeOrder(const void *p1_,const void *p2_) {
     else if(a>b) return 1;
     else return 0;
 }
-bool equalpoint(point *p1,point *p2) {
-	if(p1->x==p2->x && p1->y==p2->y) return true;
+bool equalpoint(point p1,point p2) {
+	if(p1.x==p2.x && p1.y==p2.y) return true;
 	return false;
 }
 bool segsEqual(lineSeg *l1,lineSeg *l2 ) {
@@ -69,11 +69,6 @@ void FastCollinearPoints (point *p,int size) {
          idx++;
         }
         qsort(copy,idx,sizeof(point),slopeOrder);
-         for(k=0;k<idx;k++){
-        printf("  ");
-        display(&copy[k]);printf("%.2f ",slope(&copy[k],&p[i]));
-    }
-    printf("\n");
     float currSlope=slope(&copy[0],&p[i]);
     int s=0,count=1; point sameSlope[idx];
     sameSlope[s++]=p[i];
@@ -90,29 +85,20 @@ void FastCollinearPoints (point *p,int size) {
             
                 if(count>=3) {
                     qsort(sameSlope,s,sizeof(point),compareTo);
-                    display(l[0].start); printf("-> "); display(l[0].end);
                     lineSeg temp;
-                    temp.start= &sameSlope[0]; 
-                    temp.end = &sameSlope[s-1];
+                    temp.start= sameSlope[0]; 
+                    temp.end = sameSlope[s-1];
                     int check=1; int m;
-                    display(l[0].start); printf("-> "); display(l[0].end);
                     for(m=0;m<lindex;m++) {
                     	if(segsEqual(&l[m],&temp)==true) {
-                    			printf("l=%d ",lindex);
-                    		  display(temp.start); printf("-> "); display(temp.end);
-                    		printf("Ever entered");
                     		check=0;
 							break;
 						}	
 					}
 					if(check==1 || lindex==0) {
-						printf("Entered if");
-						l[lindex].start->x = sameSlope[0].x;
-						l[lindex].start->y = sameSlope[0].y;
-						l[lindex].end->x  =  sameSlope[s-1].x;
-						l[lindex].end->y  =  sameSlope[s-1].y;
+						l[lindex].start = sameSlope[0];
+						l[lindex].end  =  sameSlope[s-1];
 							lindex++;
-						printf("l=%d ",lindex);
 					}
                 }
                 count=1;
@@ -122,7 +108,7 @@ void FastCollinearPoints (point *p,int size) {
     }
     int d;
     for(d=0;d<lindex;d++) {
-    	display(l[d].start); printf("->"); display(l[d].end);
+    	display(&l[d].start); printf("->"); display(&l[d].end);
     	printf("\n");
 	}
 }
