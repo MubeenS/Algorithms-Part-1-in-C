@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-//input 8 10000 0 0 10000 3000 7000 7000 3000 3000 4000 20000 21000 14000 15000 6000 7000
-//input 6 19000 10000 18000 10000 32000 10000 21000 10000 1234 5678 14000 10000
+/*input 8 10000 0 0 10000 3000 7000 7000 3000 3000 4000 20000 21000 14000 15000 6000 7000
+output should be (10000,0)->(0,10000)  (3000,4000)->(20000,21000)
+input 6 19000 10000 18000 10000 32000 10000 21000 10000 1234 5678 14000 10000
+output should be (32000,10000)->(14000,10000)*/
 #define inf INFINITY
 typedef struct point_ {
     int x;
@@ -48,6 +50,7 @@ bool equalpoint(point p1,point p2) {
 }
 bool segsEqual(lineSeg *l1,lineSeg *l2 ) {
  if(equalpoint(l1->start,l2->start) && equalpoint(l1->end,l2->end)) return true ;
+ if(equalpoint(l1->start,l2->end) && equalpoint(l1->end,l2->start)) return true ;
  return false;
 }
 
@@ -68,6 +71,7 @@ void FastCollinearPoints (point *p,int size) {
         copy[idx].ref = &p[i];
          idx++;
         }
+        //sorting as per slopes
         qsort(copy,idx,sizeof(point),slopeOrder);
     float currSlope=slope(&copy[0],&p[i]);
     int s=0,count=1; point sameSlope[idx];
@@ -83,7 +87,7 @@ void FastCollinearPoints (point *p,int size) {
             }
             else {
             
-                if(count>=3) {
+                if(count>=3) { //collinearity of four points exists
                     qsort(sameSlope,s,sizeof(point),compareTo);
                     lineSeg temp;
                     temp.start= sameSlope[0]; 
@@ -94,7 +98,7 @@ void FastCollinearPoints (point *p,int size) {
                     		check=0;
 							break;
 						}	
-					}
+					} //forming line segment
 					if(check==1 || lindex==0) {
 						l[lindex].start = sameSlope[0];
 						l[lindex].end  =  sameSlope[s-1];
@@ -104,9 +108,10 @@ void FastCollinearPoints (point *p,int size) {
                 count=1;
                 currSlope=slope(&p[i],&copy[k]);
            }      
-        }printf("\n");
+        }
     }
     int d;
+    //displaying the distinct line segments
     for(d=0;d<lindex;d++) {
     	display(&l[d].start); printf("->"); display(&l[d].end);
     	printf("\n");
@@ -115,11 +120,10 @@ void FastCollinearPoints (point *p,int size) {
 int main () {
     
     int i,size;
-    printf("Enter No.of points:\n");
+    printf("Enter input \n");
     scanf("%d",&size);
     point p[size];
     for(i=0;i<size;i++) {
-        printf("Enter x and y for point-%d :\n",i+1);
         scanf("%d %d",&p[i].x,&p[i].y);    
     }
     FastCollinearPoints(&p[0],size);
