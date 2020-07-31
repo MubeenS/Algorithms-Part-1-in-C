@@ -21,9 +21,9 @@ void deallocate_mem(int*** arr){
 }
 void createTiles (int **arr) {
 	int i,j;
-allocate_mem(&tiles);
-    int filler=1;
-    for(i=0;i<N;i++) 
+     allocate_mem(&tiles);
+     int filler=1;
+     for(i=0;i<N;i++) 
     	for(j=0;j<N;j++) 
     		tiles[i][j] = arr[i][j];
 }
@@ -135,13 +135,20 @@ void neighbors(int **b) {
 	deallocate_mem(&temp);
 }
 
-bool board(int **toRet,int **origin) {
-	int i,j;	
+void boardTwin(int **toRet) {
+	int i,j;
+	   for (i = 0; i < N; i++) {
+            for (j = 0; j < N-1; j++) {
+                if (toRet[i][j] != 0 && toRet[i][j+1] != 0) {
+                    swap(toRet,i, j, i, j+1);
+                }
+            }
+        }		
 }
 
 int main () {
 	int i,j,**arr;
-	printf("Enter dimension:");
+	printf("Enter input:");
 	scanf("%d",&N);
 	arr = malloc( N*sizeof(int *) );        // N is the number of the rows
 	for (i = 0 ; i < N ; i++)
@@ -149,23 +156,23 @@ int main () {
     
     for(i=0;i<N;i++) 
     	for(j=0;j<N;j++) {
-    		printf("a[%d][%d] =",i+1,j+1);
     		scanf("%d",&arr[i][j]);
 		}
 		printf("\n");
     createTiles(arr);
     createGoal();
+    printf("Tiles :");
     display(tiles);
     printf("\n");
+    printf("Goal board :");
     display(goal);
-    int ham = hamming();
-    printf("hamming = %d\n",ham);
-    int man= manhattan();
-    printf("Manhattan = %d\n",man);
-    bool x= isGoal(tiles);
-    printf("%s  ", x ? "true" : "false");
-    x= isGoal(goal);
-    printf("%s", x ? "true" : "false"); 
+    printf("Neighbors : ");
     neighbors(tiles);
+    int **twin;
+    allocate_mem(&twin);
+    copy(twin,tiles);
+    boardTwin(twin);
+    printf("Twin Board:");
+    display(twin);
 	return 0;
 }
