@@ -5,8 +5,8 @@
 
 int **tiles;
 int **goal;
-
-void createTiles (int N,int **arr) {
+int N;
+void createTiles (int **arr) {
 	int i,j;
 	tiles = malloc( N*sizeof(int *) );        // N is the number of the rows
     if (tiles == NULL)
@@ -23,7 +23,7 @@ void createTiles (int N,int **arr) {
     		tiles[i][j] = arr[i][j];
 }
 
-void createGoal(int N) {
+void createGoal(void) {
 	int i,j;
 	goal = malloc( N*sizeof(int *) );        // N is the number of the rows
     if (goal == NULL)
@@ -45,7 +45,7 @@ void createGoal(int N) {
 		}
 	}
 }
-void display(int **tiles,int N) {
+void display(int **tiles) {
 	int i,j;
 	printf("%d\n",N);
 	 for(i=0;i<N;i++) {
@@ -57,15 +57,16 @@ void display(int **tiles,int N) {
 		printf("\n");
 	}
 }
-int hamming(int N) {
+int hamming(void) {
 	int count=0,j,i;
 	for(i=0;i<N;i++) 
     	for(j=0;j<N;j++) 
     		if(tiles[i][j]!=goal[i][j]) count++;
     		return count;
 }
+
 int main () {
-	int i,j,N,**arr;
+	int i,j,**arr;
 	printf("Enter dimension:");
 	scanf("%d",&N);
 	arr = malloc( N*sizeof(int *) );        // N is the number of the rows
@@ -78,12 +79,12 @@ int main () {
     		scanf("%d",&arr[i][j]);
 		}
 		printf("\n");
-    createTiles(N,arr);
-    createGoal(N);
-    display(tiles,N);
+    createTiles(arr);
+    createGoal();
+    display(tiles);
     printf("\n");
-    display(goal,N);
-    int ham = hamming(N);
+    display(goal);
+    int ham = hamming();
     printf("%d",ham);
 	return 0;
 }
