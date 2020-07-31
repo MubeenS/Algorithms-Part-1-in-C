@@ -56,28 +56,20 @@ void display(int **t) {
 int hamming(void) {
 	int count=0,j,i;
 	for(i=0;i<N;i++) 
-    	for(j=0;j<N;j++) 
+    	for(j=0;j<N;j++) {
+            if(tiles[i][j]==0) continue;
     		if(tiles[i][j]!=goal[i][j]) count++;
+        }
     		return count;
 }
 
 int manhattan(void) {
-	int idx=0,hash[N*N],i,j,ir,jr,dist=0;
-	for(i=0;i<N;i++) 
-	 for(j=0;j<N;j++){
-	 	if(i==N-1 && j==N-1) 
-    			hash[idx] = 0;
-			else
-    		hash[idx++] = i*10+j;
-	 }
-	 for(i=0;i<N*N;i++)
-	 printf("%d ",hash[i]);
-	 
+	int i,j,dist=0,ir,jr;	 
 	 for(i=0;i<N;i++)
 	  for(j=0;j<N;j++) {
-	  	// taking out actual i and j that should be
-	  	ir=hash[tiles[i][j]] / 10;
-	  	jr=hash[tiles[i][j]] % 10;
+	  	if(tiles[i][j]==0) continue;
+	  	ir=(tiles[i][j]-1) / N;
+	  	jr=(tiles[i][j]-1) % N;
 	  	dist = dist + abs(ir-i) + abs(jr-j);
 	  }
 	  return dist;
@@ -143,6 +135,10 @@ void neighbors(int **b) {
 	deallocate_mem(&temp);
 }
 
+bool board(int **toRet,int **origin) {
+	int i,j;	
+}
+
 int main () {
 	int i,j,**arr;
 	printf("Enter dimension:");
@@ -171,6 +167,5 @@ int main () {
     x= isGoal(goal);
     printf("%s", x ? "true" : "false"); 
     neighbors(tiles);
-    
 	return 0;
 }
