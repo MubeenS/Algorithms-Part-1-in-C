@@ -7,17 +7,21 @@
 int **tiles;
 int **goal;
 int N;
+void allocate_mem(int*** arr) {
+  *arr = (int**)malloc(N*sizeof(int*));
+  int i;
+  for(i=0; i<N; i++)
+    (*arr)[i] = (int*)malloc(N*sizeof(int));
+} 
+void deallocate_mem(int*** arr){
+     int i,N;
+    for (i = 0; i < N; i++)
+        free((*arr)[i]);
+    free(*arr); 
+}
 void createTiles (int **arr) {
 	int i,j;
-	tiles = malloc( N*sizeof(int *) );        // N is the number of the rows
-    if (tiles == NULL)
-    return;
-    for (i = 0 ; i < N ; i++)
-     {
-       tiles[i] = malloc( N*sizeof(int) );     // N is the number of the columns
-       if (tiles[i] == NULL)
-          return;
-    }
+allocate_mem(&tiles);
     int filler=1;
     for(i=0;i<N;i++) 
     	for(j=0;j<N;j++) 
@@ -26,15 +30,7 @@ void createTiles (int **arr) {
 
 void createGoal(void) {
 	int i,j;
-	goal = malloc( N*sizeof(int *) );        // N is the number of the rows
-    if (goal == NULL)
-    return;
-    for (i = 0 ; i < N ; i++)
-     {
-       goal[i] = malloc( N*sizeof(int) );     // N is the number of the columns
-       if (goal[i] == NULL)
-          return;
-    }
+allocate_mem(&goal);
     int filler=1;
     for(i=0;i<N;i++) {
     	for(j=0;j<N;j++) {
@@ -47,7 +43,7 @@ void createGoal(void) {
 }
 void display(int **t) {
 	int i,j;
-	printf("%d\n",N);
+	printf("\n%d\n",N);
 	 for(i=0;i<N;i++) {
     	for(j=0;j<N;j++) {
     		if(t[i][j]==0) printf("  ");
@@ -116,15 +112,7 @@ void copy(int **toRet,int **origin) {
 void neighbors(int **b) {
    int i,j,stop=0;
    int **temp;
-   temp = malloc( N*sizeof(int *) );        // N is the number of the rows
-    if (temp == NULL)
-    return;
-    for (i = 0 ; i < N ; i++)
-     {
-       temp[i] = malloc( N*sizeof(int) );     // N is the number of the columns
-       if (temp[i] == NULL)
-          return;
-    }
+     allocate_mem(&temp);
    for(i=0;i<N;i++) {
      for(j=0;j<N;j++)
        if(b[i][j]==0) {
@@ -152,6 +140,7 @@ void neighbors(int **b) {
 		swap(temp,i,j+1,i,j);
 		display(temp);	
 	}
+	deallocate_mem(&temp);
 }
 
 int main () {
