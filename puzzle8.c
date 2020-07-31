@@ -95,6 +95,65 @@ bool isGoal(int **t) {
 	return true;
 }
 
+bool equals(int **p,int **q) {
+		int i,j;
+	 for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) 
+    		if(p[i][j]!=q[i][j]) return false;
+	return true;	
+}
+void swap(int **surface, int x1, int y1, int x2, int y2) {
+  int temp = surface[x1][y1];
+    surface[x1][y1] = surface[x2][y2];
+    surface[x2][y2] = temp;
+} 
+void copy(int **toRet,int **origin) {
+		int i,j;
+	 for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) 
+    	toRet[i][j]=origin[i][j];
+}
+void neighbors(int **b) {
+   int i,j,stop=0;
+   int **temp;
+   temp = malloc( N*sizeof(int *) );        // N is the number of the rows
+    if (temp == NULL)
+    return;
+    for (i = 0 ; i < N ; i++)
+     {
+       temp[i] = malloc( N*sizeof(int) );     // N is the number of the columns
+       if (temp[i] == NULL)
+          return;
+    }
+   for(i=0;i<N;i++) {
+     for(j=0;j<N;j++)
+       if(b[i][j]==0) {
+       	stop=1;break;
+	   }
+	   if(stop==1) break;
+    }
+	if(j-1>=0) {
+		copy(temp,b);
+		swap(temp,i,j-1,i,j);
+		display(temp);	
+	}
+	if(i-1>=0) {
+		copy(temp,b);
+		swap(temp,i-1,j,i,j);
+		display(temp);	
+	}
+	if(i+1<N) {
+		copy(temp,b);
+		swap(temp,i+1,j,i,j);
+		display(temp);	
+	}
+	if(j+1<N) {
+		copy(temp,b);
+		swap(temp,i,j+1,i,j);
+		display(temp);	
+	}
+}
+
 int main () {
 	int i,j,**arr;
 	printf("Enter dimension:");
@@ -122,5 +181,7 @@ int main () {
     printf("%s  ", x ? "true" : "false");
     x= isGoal(goal);
     printf("%s", x ? "true" : "false"); 
+    neighbors(tiles);
+    
 	return 0;
 }
