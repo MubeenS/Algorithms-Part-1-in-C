@@ -4,7 +4,6 @@
 //input 3 0 1 3 4 2 5 7 8 6 
 //input 3 8 1 3 4 0 2 7 6 5
 
-int **tiles;
 int **goal;
 int N;
 void allocate_mem(int*** arr) {
@@ -19,10 +18,8 @@ void deallocate_mem(int*** arr){
         free((*arr)[i]);
     free(*arr); 
 }
-void createTiles (int **arr) {
+void createTiles (int **tiles,int **arr) {
 	int i,j;
-     allocate_mem(&tiles);
-     int filler=1;
      for(i=0;i<N;i++) 
     	for(j=0;j<N;j++) 
     		tiles[i][j] = arr[i][j];
@@ -53,7 +50,7 @@ void display(int **t) {
 		printf("\n");
 	}
 }
-int hamming(void) {
+int hamming(int **tiles) {
 	int count=0,j,i;
 	for(i=0;i<N;i++) 
     	for(j=0;j<N;j++) {
@@ -63,7 +60,7 @@ int hamming(void) {
     		return count;
 }
 
-int manhattan(void) {
+int manhattan(int **tiles) {
 	int i,j,dist=0,ir,jr;	 
 	 for(i=0;i<N;i++)
 	  for(j=0;j<N;j++) {
@@ -159,11 +156,13 @@ int main () {
     		scanf("%d",&arr[i][j]);
 		}
 		printf("\n");
-    createTiles(arr);
-    createGoal();
+	int **tiles;
+	allocate_mem(&tiles);
+    createTiles(tiles,arr);
     printf("Tiles :");
     display(tiles);
     printf("\n");
+    createGoal();
     printf("Goal board :");
     display(goal);
     printf("Neighbors : ");
