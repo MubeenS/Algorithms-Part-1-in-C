@@ -1,131 +1,212 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <stdbool.h>
-/*input 8 10000 0 0 10000 3000 7000 7000 3000 3000 4000 20000 21000 14000 15000 6000 7000
-output should be (10000,0)->(0,10000)  (3000,4000)->(20000,21000)
-input 6 19000 10000 18000 10000 32000 10000 21000 10000 1234 5678 14000 10000
-output should be (32000,10000)->(14000,10000)*/
-#define inf INFINITY
-typedef struct point_ {
-    int x;
-    int y;
-    struct point_ *ref;
-    
-}point;
+//input 3 0 1 3 4 2 5 7 8 6 
+//input 3 8 1 3 4 0 2 7 6 5
+typedef struct node { 
+    int **data; 
+    // Lower values indicate higher priority 
+    int priority;   
+    struct node* parent; 
+  
+} Node; 
 
-typedef struct lineSegment {
-	point start;
-	point end;
-}lineSeg;
+int **goal;
+int N;
+void allocate_mem(int ***arr) {
+  *arr = (int**)malloc(N*sizeof(int*));
+  int i;
+  for(i=0; i<N; i++)
+    (*arr)[i] = (int*)malloc(N*sizeof(int));
+} 
+void deallocate_mem(int*** arr){
+     int i,N;
+    for (i = 0; i < N; i++)
+        free((*arr)[i]);
+    free(*arr); 
+}
+void createTiles (int **tiles,int **arr) {
+	int i,j;
+     for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) 
+    		tiles[i][j] = arr[i][j];
+}
+Node* newNode(int **arr, int p) 
+{ 
+    Node* temp = (Node*)malloc(sizeof(Node)); 
+    allocate_mem(&(temp->data));
+    createTiles(temp->data,arr);
+    temp->priority = p; 
+    temp->parent = NULL;   
+    return temp; 
+} 
+ 
 
-int compareTo(const void *pp1,const void *pp2) {
-    point *p1 = (point *) pp1;
-    point *p2 = (point *) pp2;
-    if(p1->y<p2->y) return -1;
-    else if(p1->y==p2->y && p1->x<p2->x)
-    return -1;
-    else return 1;
-}
-float slope(point *p1,point *p2) {
-    if(p2->y==p1->y && p2->x!=p1->x) return 0;//horizontal line segment
-   else if(p2->x==p1->x && p2->y!=p1->y) return inf; //vertical line segment
-   else if(p2->x==p1->x && p2->y==p1->y) return -inf;//point to itself
-   else 
-   return (p2->y-p1->y)/((float)(p2->x-p1->x));
-}
-
-int slopeOrder(const void *p1_,const void *p2_) {
-    point *p1 = (point *) p1_;
-    point *p2 = (point *) p2_;
-    float a=slope(p1,p1->ref);
-    float b=slope(p2,p2->ref);
-    if(a<b) return -1;
-    else if(a>b) return 1;
-    else return 0;
-}
-bool equalpoint(point p1,point p2) {
-	if(p1.x==p2.x && p1.y==p2.y) return true;
-	return false;
-}
-bool segsEqual(lineSeg *l1,lineSeg *l2 ) {
- if(equalpoint(l1->start,l2->start) && equalpoint(l1->end,l2->end)) return true ;
- if(equalpoint(l1->start,l2->end) && equalpoint(l1->end,l2->start)) return true ;
- return false;
-}
-
-void display (point *p){
-	printf("(%d,%d)",p->x,p->y);
-}
-void FastCollinearPoints (point *p,int size) {
-    qsort(p,size,sizeof(point),compareTo);
-    int i;
-    point copy[size-1];
-    lineSeg l[size-1];
-    int lindex=0;
-    for(i=0;i<size;i++) {
-        int idx=0,j,k;
-        for(j=0;j<size;j++) {
-            if(i==j) continue;
-        copy[idx]=p[j];
-        copy[idx].ref = &p[i];
-         idx++;
-        }
-        //sorting as per slopes
-        qsort(copy,idx,sizeof(point),slopeOrder);
-    float currSlope=slope(&copy[0],&p[i]);
-    int s=0,count=1; point sameSlope[idx];
-    sameSlope[s++]=p[i];
-        for(k=1;k<idx;k++) {
-            if(slope(&copy[k],&p[i])==currSlope) {
-              count++;
-              if(k==1) {
-			  count++;
-		      }
-		      sameSlope[s++]=copy[k-1];
-              sameSlope[s++]=copy[k];
-            }
-            else {
-            
-                if(count>=3) { //collinearity of four points exists
-                    qsort(sameSlope,s,sizeof(point),compareTo);
-                    lineSeg temp;
-                    temp.start= sameSlope[0]; 
-                    temp.end = sameSlope[s-1];
-                    int check=1; int m;
-                    for(m=0;m<lindex;m++) {
-                    	if(segsEqual(&l[m],&temp)==true) {
-                    		check=0;
-							break;
-						}	
-					} //forming line segment
-					if(check==1 || lindex==0) {
-						l[lindex].start = sameSlope[0];
-						l[lindex].end  =  sameSlope[s-1];
-							lindex++;
-					}
-                }
-                count=1;
-                currSlope=slope(&p[i],&copy[k]);
-           }      
-        }
-    }
-    int d;
-    //displaying the distinct line segments
-    for(d=0;d<lindex;d++) {
-    	display(&l[d].start); printf("->"); display(&l[d].end);
-    	printf("\n");
+void createGoal(void) {
+	int i,j;
+allocate_mem(&goal);
+    int filler=1;
+    for(i=0;i<N;i++) {
+    	for(j=0;j<N;j++) {
+    		if(i==N-1 && j==N-1) 
+    			goal[i][j] = 0;
+			else
+    		goal[i][j] = filler++;
+		}
 	}
 }
-int main () {
-    
-    int i,size;
-    printf("Enter input \n");
-    scanf("%d",&size);
-    point p[size];
-    for(i=0;i<size;i++) {
-        scanf("%d %d",&p[i].x,&p[i].y);    
+void display(int **t) {
+	int i,j;
+	printf("\n%d\n",N);
+	 for(i=0;i<N;i++) {
+    	for(j=0;j<N;j++) {
+    		if(t[i][j]==0) printf("  ");
+    		else
+    		printf("%d ",t[i][j]);
+		}
+		printf("\n");
+	}
+}
+int hamming(int **tiles) {
+	int count=0,j,i;
+	for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) {
+            if(tiles[i][j]==0) continue;
+    		if(tiles[i][j]!=goal[i][j]) count++;
+        }
+    		return count;
+}
+
+int manhattan(int **tiles) {
+	int i,j,dist=0,ir,jr;	 
+	 for(i=0;i<N;i++)
+	  for(j=0;j<N;j++) {
+	  	if(tiles[i][j]==0) continue;
+	  	ir=(tiles[i][j]-1) / N;
+	  	jr=(tiles[i][j]-1) % N;
+	  	dist = dist + abs(ir-i) + abs(jr-j);
+	  }
+	  return dist;
+}
+
+bool isGoal(int **t) {
+	int i,j;
+	 for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) 
+    		if(t[i][j]!=goal[i][j]) return false;
+	return true;
+}
+
+bool equals(int **p,int **q) {
+		int i,j;
+	 for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) 
+    		if(p[i][j]!=q[i][j]) return false;
+	return true;	
+}
+void swap(int **surface, int x1, int y1, int x2, int y2) {
+  int temp = surface[x1][y1];
+    surface[x1][y1] = surface[x2][y2];
+    surface[x2][y2] = temp;
+} 
+void copy(int **toRet,int **origin) {
+		int i,j;
+	 for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) 
+    	toRet[i][j]=origin[i][j];
+}
+int compare( const void *a_, const void *b_){
+	Node *a = (Node*) a_;
+	Node *b = (Node*) b_;
+	if(a->priority > b->priority) return 1;
+    if(a->priority < b->priority) return -1;
+	else return 0;
+}
+void neighbors(Node *curr,int numMoves) {
+   int i,j,stop=0,idx=0;
+   int **temp;
+   int **b=curr->data;
+   Node *nArray[4];
+     allocate_mem(&temp);
+   for(i=0;i<N;i++) {
+     for(j=0;j<N;j++)
+       if(b[i][j]==0) {
+       	stop=1;break;
+	   }
+	   if(stop==1) break;
     }
-    FastCollinearPoints(&p[0],size);
-    return 0;
+	if(j-1>=0) {
+		copy(temp,b);
+		swap(temp,i,j-1,i,j);
+		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		idx++;
+	}
+	if(i-1>=0) {
+		copy(temp,b);
+		swap(temp,i-1,j,i,j);
+		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		idx++;
+			}
+	if(i+1<N) {
+		copy(temp,b);
+		swap(temp,i+1,j,i,j);
+		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		idx++;	
+	}
+	if(j+1<N) {
+		copy(temp,b);
+		swap(temp,i,j+1,i,j);
+	    nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		idx++;	
+	}
+	qsort(nArray,idx,sizeof(Node*),compare); //sorting nodes as per priority
+	for(i=0;i<idx;i++) {
+	display(nArray[i]->data);
+	printf("\tpriority of %d ",i);
+	printf("priority=%d",nArray[i]->priority);
+	
+	 }
+//	deallocate_mem(&temp); //this line does not work in DevC++
+}
+
+void boardTwin(int **toRet) {
+	int i,j;
+	   for (i = 0; i < N; i++) {
+            for (j = 0; j < N-1; j++) {
+                if (toRet[i][j] != 0 && toRet[i][j+1] != 0) {
+                    swap(toRet,i, j, i, j+1);
+                }
+            }
+        }		
+}
+
+int main () {
+	int i,j,**arr,numMoves=0;
+	printf("Enter input:");
+	scanf("%d",&N);
+	arr = malloc( N*sizeof(int *) );        // N is the number of the rows
+	for (i = 0 ; i < N ; i++)
+     arr[i] = malloc( N*sizeof(int) );     // N is the number of the columns
+    
+    for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) {
+    		scanf("%d",&arr[i][j]);
+		}
+		printf("\n");
+	Node* tiles = newNode(arr,1);
+    printf("Tiles :");
+    display(tiles->data);
+    printf("\n");
+    createGoal();
+    printf("Goal board :");
+    display(goal);
+    printf("Neighbors : ");
+    neighbors(tiles,++numMoves);
+    int **twin;
+    allocate_mem(&twin);
+    copy(twin,tiles->data);
+    boardTwin(twin);
+    printf("Twin Board:");
+    display(twin);
+	return 0;
 }
