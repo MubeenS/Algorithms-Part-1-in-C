@@ -3,13 +3,14 @@
 #include <stdbool.h>
 //input 3 0 1 3 4 2 5 7 8 6 
 //input 3 8 1 3 4 0 2 7 6 5
+//input 3 5 1 3 4 0 2 7 6 8
 typedef struct node { 
     int **data; 
     // Lower values indicate higher priority 
     int priority;   
     struct node* parent; 
   
-} Node; 
+}Node; 
 
 int **goal;
 int N;
@@ -115,6 +116,12 @@ void copy(int **toRet,int **origin) {
     	for(j=0;j<N;j++) 
     	toRet[i][j]=origin[i][j];
 }
+int compare( const void *a_, const void *b_){
+	Node *a = *(Node**) a_; //compare function for pointer of array of structures
+	Node *b = *(Node**) b_;
+	printf(" %d %d ",a->priority,b->priority); 
+return a->priority-b->priority;
+}
 void neighbors(Node *curr,int numMoves) {
    int i,j,stop=0,idx=0;
    int **temp;
@@ -132,33 +139,32 @@ void neighbors(Node *curr,int numMoves) {
 		copy(temp,b);
 		swap(temp,i,j-1,i,j);
 		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		display(nArray[idx]->data);
 		idx++;
 	}
 	if(i-1>=0) {
 		copy(temp,b);
 		swap(temp,i-1,j,i,j);
 		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		display(nArray[idx]->data);
 		idx++;
 			}
 	if(i+1<N) {
 		copy(temp,b);
 		swap(temp,i+1,j,i,j);
 		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		display(nArray[idx]->data);
 		idx++;	
 	}
 	if(j+1<N) {
 		copy(temp,b);
 		swap(temp,i,j+1,i,j);
 	    nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		display(nArray[idx]->data);
 		idx++;	
 	}
-	for(i=0;i<idx;i++) display(nArray[i]->data);
-	deallocate_mem(&temp);
-    
+	qsort(nArray,idx,sizeof(Node*),compare); //sorting nodes as per priority
+	for(i=0;i<idx;i++) {
+	printf("priority=%d ",nArray[i]->priority);
+	display(nArray[i]->data);
+	}
+//	deallocate_mem(&temp); //this line does not work in DevC++
 }
 
 void boardTwin(int **toRet) {
