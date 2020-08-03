@@ -7,7 +7,7 @@ typedef struct node {
     int **data; 
     // Lower values indicate higher priority 
     int priority;   
-    struct node* next; 
+    struct node* parent; 
   
 } Node; 
 
@@ -37,7 +37,7 @@ Node* newNode(int **arr, int p)
     allocate_mem(&(temp->data));
     createTiles(temp->data,arr);
     temp->priority = p; 
-    temp->next = NULL;   
+    temp->parent = NULL;   
     return temp; 
 } 
  
@@ -115,10 +115,11 @@ void copy(int **toRet,int **origin) {
     	for(j=0;j<N;j++) 
     	toRet[i][j]=origin[i][j];
 }
-void neighbors(Node *curr) {
-   int i,j,stop=0;
+void neighbors(Node *curr,int numMoves) {
+   int i,j,stop=0,idx=0;
    int **temp;
    int **b=curr->data;
+   Node *nArray[4];
      allocate_mem(&temp);
    for(i=0;i<N;i++) {
      for(j=0;j<N;j++)
@@ -130,24 +131,34 @@ void neighbors(Node *curr) {
 	if(j-1>=0) {
 		copy(temp,b);
 		swap(temp,i,j-1,i,j);
-		display(temp);	
+		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		display(nArray[idx]->data);
+		idx++;
 	}
 	if(i-1>=0) {
 		copy(temp,b);
 		swap(temp,i-1,j,i,j);
-		display(temp);	
-	}
+		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		display(nArray[idx]->data);
+		idx++;
+			}
 	if(i+1<N) {
 		copy(temp,b);
 		swap(temp,i+1,j,i,j);
-		display(temp);	
+		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		display(nArray[idx]->data);
+		idx++;	
 	}
 	if(j+1<N) {
 		copy(temp,b);
 		swap(temp,i,j+1,i,j);
-		display(temp);	
+	    nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
+		display(nArray[idx]->data);
+		idx++;	
 	}
+	for(i=0;i<idx;i++) display(nArray[i]->data);
 	deallocate_mem(&temp);
+    
 }
 
 void boardTwin(int **toRet) {
@@ -162,7 +173,7 @@ void boardTwin(int **toRet) {
 }
 
 int main () {
-	int i,j,**arr;
+	int i,j,**arr,numMoves=0;
 	printf("Enter input:");
 	scanf("%d",&N);
 	arr = malloc( N*sizeof(int *) );        // N is the number of the rows
@@ -182,7 +193,7 @@ int main () {
     printf("Goal board :");
     display(goal);
     printf("Neighbors : ");
-    neighbors(tiles);
+    neighbors(tiles,++numMoves);
     int **twin;
     allocate_mem(&twin);
     copy(twin,tiles->data);
