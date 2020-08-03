@@ -116,18 +116,20 @@ void copy(int **toRet,int **origin) {
     	for(j=0;j<N;j++) 
     	toRet[i][j]=origin[i][j];
 }
-int compare( const void *a_, const void *b_){
-	Node *a = *(Node**) a_; //compare function for pointer of array of structures
+//compare function for pointer of array of structs
+int compare( const void *a_, const void *b_){  
+	Node *a = *(Node**) a_; //type conversion for pointer of array of structures
 	Node *b = *(Node**) b_;
 	printf(" %d %d ",a->priority,b->priority); 
 return a->priority-b->priority;
 }
-void neighbors(Node *curr,int numMoves) {
+Node* neighbor(Node *curr,int numMoves) {
    int i,j,stop=0,idx=0;
    int **temp;
    int **b=curr->data;
    Node *nArray[4];
      allocate_mem(&temp);
+     //finding space to move blocks
    for(i=0;i<N;i++) {
      for(j=0;j<N;j++)
        if(b[i][j]==0) {
@@ -160,13 +162,17 @@ void neighbors(Node *curr,int numMoves) {
 		idx++;	
 	}
 	qsort(nArray,idx,sizeof(Node*),compare); //sorting nodes as per priority
+	Node *samePriority[4];
 	for(i=0;i<idx;i++) {
 	printf("priority=%d ",nArray[i]->priority);
 	display(nArray[i]->data);
 	}
+	return nArray[0];
+	
 //	deallocate_mem(&temp); //this line does not work in DevC++
 }
 
+//finds twin of board by exchanging any two blocks
 void boardTwin(int **toRet) {
 	int i,j;
 	   for (i = 0; i < N; i++) {
@@ -199,8 +205,9 @@ int main () {
     printf("Goal board :");
     display(goal);
     printf("Neighbors : ");
-    neighbors(tiles,++numMoves);
-    int **twin;
+    Node *curr = neighbor(tiles,++numMoves);
+    display(curr->data);
+	    int **twin;
     allocate_mem(&twin);
     copy(twin,tiles->data);
     boardTwin(twin);
