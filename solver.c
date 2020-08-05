@@ -1,186 +1,86 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-//input 3 0 1 3 4 2 5 7 8 6 
-//input 3 8 1 3 4 0 2 7 6 5
-//input 3 5 1 3 4 0 2 7 6 8
-int **goal;
-int N;
-void allocate_mem(int ***arr) {
-  *arr = (int**)malloc(N*sizeof(int*));
-  int i;
-  for(i=0; i<N; i++)
-    (*arr)[i] = (int*)malloc(N*sizeof(int));
-} 
-void deallocate_mem(int*** arr){
-     int i,N;
-    for (i = 0; i < N; i++)
-        free((*arr)[i]);
-    free(*arr); 
-}
-void createTiles (int **tiles,int **arr) {
-	int i,j;
-     for(i=0;i<N;i++) 
-    	for(j=0;j<N;j++) 
-    		tiles[i][j] = arr[i][j];
-}
-
-void createGoal(void) {
-	int i,j;
-allocate_mem(&goal);
-    int filler=1;
-    for(i=0;i<N;i++) {
-    	for(j=0;j<N;j++) {
-    		if(i==N-1 && j==N-1) 
-    			goal[i][j] = 0;
-			else
-    		goal[i][j] = filler++;
-		}
-	}
-}
-void display(int **t) {
-	int i,j;
-	printf("\n%d\n",N);
-	 for(i=0;i<N;i++) {
-    	for(j=0;j<N;j++) {
-    		if(t[i][j]==0) printf("  ");
-    		else
-    		printf("%d ",t[i][j]);
-		}
-		printf("\n");
-	}
-}
-int hamming(int **tiles) {
-	int count=0,j,i;
-	for(i=0;i<N;i++) 
-    	for(j=0;j<N;j++) {
-            if(tiles[i][j]==0) continue;
-    		if(tiles[i][j]!=goal[i][j]) count++;
-        }
-    		return count;
-}
-
-int manhattan(int **tiles) {
-	int i,j,dist=0,ir,jr;	 
-	 for(i=0;i<N;i++)
-	  for(j=0;j<N;j++) {
-	  	if(tiles[i][j]==0) continue;
-	  	ir=(tiles[i][j]-1) / N;
-	  	jr=(tiles[i][j]-1) % N;
-	  	dist = dist + abs(ir-i) + abs(jr-j);
-	  }
-	  return dist;
-}
-
-bool isGoal(int **t) {
-	int i,j;
-	 for(i=0;i<N;i++) 
-    	for(j=0;j<N;j++) 
-    		if(t[i][j]!=goal[i][j]) return false;
-	return true;
-}
-
-bool equals(int **p,int **q) {
-		int i,j;
-	 for(i=0;i<N;i++) 
-    	for(j=0;j<N;j++) 
-    		if(p[i][j]!=q[i][j]) return false;
-	return true;	
-}
-void swap(int **surface, int x1, int y1, int x2, int y2) {
-  int temp = surface[x1][y1];
-    surface[x1][y1] = surface[x2][y2];
-    surface[x2][y2] = temp;
-} 
-void copy(int **toRet,int **origin) {
-		int i,j;
-	 for(i=0;i<N;i++) 
-    	for(j=0;j<N;j++) 
-    	toRet[i][j]=origin[i][j];
-}
-
+#include <stdio.h> 
+#include <stdlib.h> 
+#include "board4Q.h" 
+// Node 
+ 
 typedef struct node { 
-    int **data; 
+    board *b; 
     // Lower values indicate higher priority 
-    int priority;   
-    struct node* parent; 
+    int priority; 
+    struct node* next; 
   
-}Node; 
-
-Node* newNode(int **arr, int p) 
+} Node; 
+  
+// Function to Create A New Node 
+Node* newNode(board *brd) 
 { 
-    Node* temp = (Node*)malloc(sizeof(Node)); 
-    allocate_mem(&(temp->data));
-    createTiles(temp->data,arr);
-    temp->priority = p; 
-    temp->parent = NULL;   
+    Node* temp = (Node*)malloc(sizeof(Node));
+   //	board* tiles = newBoard(arr,manhattan(arr));
+   	temp->b = newBoard(brd->data,manhattan(brd->data));
+    temp->priority = brd->priority; 
+    temp->next = NULL; 
     return temp; 
 } 
- 
-//compare function for pointer of array of structs
-int compare( const void *a_, const void *b_){  
-	Node *a = *(Node**) a_; //type conversion for pointer of array of structures
-	Node *b = *(Node**) b_;
-return a->priority-b->priority;
-}
-Node* neighbor(Node *curr,int numMoves) {
-   int i,j,stop=0,idx=0;
-   int **temp;
-   int **b=curr->data;
-   Node *nArray[4];
-     allocate_mem(&temp);
-     //finding space to move blocks
-   for(i=0;i<N;i++) {
-     for(j=0;j<N;j++)
-       if(b[i][j]==0) {
-       	stop=1;break;
-	   }
-	   if(stop==1) break;
-    }
-	if(j-1>=0) {
-		copy(temp,b);
-		swap(temp,i,j-1,i,j);
-		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		idx++;
-	}
-	if(i-1>=0) {
-		copy(temp,b);
-		swap(temp,i-1,j,i,j);
-		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		idx++;
-			}
-	if(i+1<N) {
-		copy(temp,b);
-		swap(temp,i+1,j,i,j);
-		nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		idx++;	
-	}
-	if(j+1<N) {
-		copy(temp,b);
-		swap(temp,i,j+1,i,j);
-	    nArray[idx] = newNode(temp,numMoves+manhattan(temp)); //taking neghbours into array
-		idx++;	
-	}
-	qsort(nArray,idx,sizeof(Node*),compare); //sorting nodes as per priority
-	return nArray[0];
-	
-//	deallocate_mem(&temp); //this line does not work in DevC++
-}
-
-//finds twin of board by exchanging any two blocks
-void boardTwin(int **toRet) {
-	int i,j;
-	   for (i = 0; i < N; i++) {
-            for (j = 0; j < N-1; j++) {
-                if (toRet[i][j] != 0 && toRet[i][j+1] != 0) {
-                    swap(toRet,i, j, i, j+1);
-                }
-            }
-        }		
-}
-
-int main () {
-	int i,j,**arr,numMoves=0;
+  
+// Return the value at head 
+board* peek(Node** head) 
+{ 
+    return (*head)->b; 
+} 
+ /* 
+// Removes the element with the 
+// highest priority form the list 
+void pop(Node** head) 
+{ 
+    Node* temp = *head; 
+    (*head) = (*head)->next; 
+    free(temp); 
+} 
+  
+// Function to push according to priority 
+void push(Node** head, board d, int p) 
+{ 
+    Node* start = (*head); 
+  
+    // Create new Node 
+    Node* temp = newNode(d); 
+  
+    // Special Case: The head of list has lesser 
+    // priority than new node. So insert new 
+    // node before head node and change head node. 
+    if ((*head)->priority > p) { 
+  
+        // Insert New Node before head 
+        temp->next = *head; 
+        (*head) = temp; 
+    } 
+    else { 
+  
+        // Traverse the list and find a 
+        // position to insert new node 
+        while (start->next != NULL && 
+               start->next->priority < p) { 
+            start = start->next; 
+        } 
+  
+        // Either at the ends of the list 
+        // or at required position 
+        temp->next = start->next; 
+        start->next = temp; 
+    } 
+} 
+  
+// Function to check is list is empty 
+int isEmpty(Node** head) 
+{ 
+    return (*head) == NULL; 
+} 
+  */
+// Driver code 
+int main() 
+{ 
+    // Create a Priority Queue 
+int i,j,**arr,numMoves=0;
 	printf("Enter input:");
 	scanf("%d",&N);
 	arr = malloc( N*sizeof(int *) );        // N is the number of the rows
@@ -192,27 +92,11 @@ int main () {
     		scanf("%d",&arr[i][j]);
 		}
 		printf("\n");
-	Node* tiles = newNode(arr,1);
-    printf("Tiles :");
-    display(tiles->data);
-    printf("\n");
-    createGoal();
-    printf("Goal board :");
-    display(goal);
-    printf("Neighbors : ");
-    Node *curr;
-    do {
-     curr = neighbor(tiles,++numMoves);
-    	curr->parent = tiles;
-    	tiles = curr;
-        display(curr->data);
-	} while(isGoal(curr->data)!= true);
-    
-	int **twin;
-    allocate_mem(&twin);
-    copy(twin,tiles->data);
-    boardTwin(twin);
-    printf("Twin Board:");
-    display(twin);
-	return 0;
-}
+	board* tiles = newBoard(arr,manhattan(arr));
+	display(tiles->data);
+	printf("priority = %d",tiles->priority);
+	Node *pq = newNode(tiles);
+		printf("works");
+	display(pq->b->data);
+    return 0; 
+} 
