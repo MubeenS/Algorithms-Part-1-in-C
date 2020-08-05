@@ -4,14 +4,6 @@
 //input 3 0 1 3 4 2 5 7 8 6 
 //input 3 8 1 3 4 0 2 7 6 5
 //input 3 5 1 3 4 0 2 7 6 8
-typedef struct node { 
-    int **data; 
-    // Lower values indicate higher priority 
-    int priority;   
-    struct node* parent; 
-  
-}Node; 
-
 int **goal;
 int N;
 void allocate_mem(int ***arr) {
@@ -32,16 +24,6 @@ void createTiles (int **tiles,int **arr) {
     	for(j=0;j<N;j++) 
     		tiles[i][j] = arr[i][j];
 }
-Node* newNode(int **arr, int p) 
-{ 
-    Node* temp = (Node*)malloc(sizeof(Node)); 
-    allocate_mem(&(temp->data));
-    createTiles(temp->data,arr);
-    temp->priority = p; 
-    temp->parent = NULL;   
-    return temp; 
-} 
- 
 
 void createGoal(void) {
 	int i,j;
@@ -116,11 +98,29 @@ void copy(int **toRet,int **origin) {
     	for(j=0;j<N;j++) 
     	toRet[i][j]=origin[i][j];
 }
+
+typedef struct node { 
+    int **data; 
+    // Lower values indicate higher priority 
+    int priority;   
+    struct node* parent; 
+  
+}Node; 
+
+Node* newNode(int **arr, int p) 
+{ 
+    Node* temp = (Node*)malloc(sizeof(Node)); 
+    allocate_mem(&(temp->data));
+    createTiles(temp->data,arr);
+    temp->priority = p; 
+    temp->parent = NULL;   
+    return temp; 
+} 
+ 
 //compare function for pointer of array of structs
 int compare( const void *a_, const void *b_){  
 	Node *a = *(Node**) a_; //type conversion for pointer of array of structures
 	Node *b = *(Node**) b_;
-	printf(" %d %d ",a->priority,b->priority); 
 return a->priority-b->priority;
 }
 Node* neighbor(Node *curr,int numMoves) {
@@ -162,11 +162,6 @@ Node* neighbor(Node *curr,int numMoves) {
 		idx++;	
 	}
 	qsort(nArray,idx,sizeof(Node*),compare); //sorting nodes as per priority
-	Node *samePriority[4];
-	for(i=0;i<idx;i++) {
-	printf("priority=%d ",nArray[i]->priority);
-	display(nArray[i]->data);
-	}
 	return nArray[0];
 	
 //	deallocate_mem(&temp); //this line does not work in DevC++
@@ -205,9 +200,15 @@ int main () {
     printf("Goal board :");
     display(goal);
     printf("Neighbors : ");
-    Node *curr = neighbor(tiles,++numMoves);
-    display(curr->data);
-	    int **twin;
+    Node *curr;
+    do {
+     curr = neighbor(tiles,++numMoves);
+    	curr->parent = tiles;
+    	tiles = curr;
+        display(curr->data);
+	} while(isGoal(curr->data)!= true);
+    
+	int **twin;
     allocate_mem(&twin);
     copy(twin,tiles->data);
     boardTwin(twin);
