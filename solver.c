@@ -97,6 +97,7 @@ int i,j,**arr,numMoves=0;
 	printf("priority = %d",tiles->priority);
 	Node *pq = newNode(tiles);
 		printf("works");
-	display(pq->b->data);
+	board *peeked = peek(&pq);
+	display(peeked->data);
     return 0; 
 } 
