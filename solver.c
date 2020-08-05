@@ -27,28 +27,27 @@ board* peek(Node** head)
 { 
     return (*head)->b; 
 } 
- /* 
+
 // Removes the element with the 
 // highest priority form the list 
 void pop(Node** head) 
-{ 
+{  
     Node* temp = *head; 
     (*head) = (*head)->next; 
     free(temp); 
 } 
-  
+ 
 // Function to push according to priority 
-void push(Node** head, board d, int p) 
+void push(Node** head, board *d) 
 { 
     Node* start = (*head); 
-  
     // Create new Node 
     Node* temp = newNode(d); 
   
     // Special Case: The head of list has lesser 
     // priority than new node. So insert new 
     // node before head node and change head node. 
-    if ((*head)->priority > p) { 
+    if ((*head)->priority > d->priority) { 
   
         // Insert New Node before head 
         temp->next = *head; 
@@ -59,7 +58,7 @@ void push(Node** head, board d, int p)
         // Traverse the list and find a 
         // position to insert new node 
         while (start->next != NULL && 
-               start->next->priority < p) { 
+               start->next->priority < d->priority) { 
             start = start->next; 
         } 
   
@@ -69,7 +68,7 @@ void push(Node** head, board d, int p)
         start->next = temp; 
     } 
 } 
-  
+/*  
 // Function to check is list is empty 
 int isEmpty(Node** head) 
 { 
@@ -96,8 +95,29 @@ int i,j,**arr,numMoves=0;
 	display(tiles->data);
 	printf("priority = %d",tiles->priority);
 	Node *pq = newNode(tiles);
-		printf("works");
+		printf("peek1");
 	board *peeked = peek(&pq);
 	display(peeked->data);
+	//checking by inserting another
+	printf("Enter input:");
+	scanf("%d",&N);
+	arr = malloc( N*sizeof(int *) );        // N is the number of the rows
+	for (i = 0 ; i < N ; i++)
+     arr[i] = malloc( N*sizeof(int) );     // N is the number of the columns
+    
+    for(i=0;i<N;i++) 
+    	for(j=0;j<N;j++) {
+    		scanf("%d",&arr[i][j]);
+		}
+		printf("\n");
+	board* tile = newBoard(arr,manhattan(arr));
+	display(tile->data);
+	printf("priority = %d",tile->priority);
+	push(&pq,tile);
+	pop(&pq);
+	board *peekd = peek(&pq);
+	printf("peek2");
+	display(peekd->data);
+	
     return 0; 
 } 
