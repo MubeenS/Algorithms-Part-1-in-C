@@ -125,7 +125,9 @@ board* newBoard(int **arr, int p)
     temp->priority = p; 
     temp->parent = NULL;   
     return temp; 
-} 
+}
+// Node 
+int numMoves; 
 typedef struct node { 
     board *b; 
     // Lower values indicate higher priority 
@@ -138,8 +140,7 @@ typedef struct node {
 Node* newNode(board *brd) 
 { 
     Node* temp = (Node*)malloc(sizeof(Node));
-   //	board* tiles = newBoard(arr,manhattan(arr));
-   	temp->b = newBoard(brd->data,manhattan(brd->data));
+   	temp->b = newBoard(brd->data,manhattan(brd->data)+numMoves);
     temp->priority = brd->priority; 
     temp->next = NULL; 
     return temp; 
@@ -171,7 +172,6 @@ void push(Node** head, board *d)
     // priority than new node. So insert new 
     // node before head node and change head node. 
     if ((*head)->priority > d->priority) { 
-  
         // Insert New Node before head 
         temp->next = *head; 
         (*head) = temp; 
@@ -180,8 +180,7 @@ void push(Node** head, board *d)
   
         // Traverse the list and find a 
         // position to insert new node 
-        while (start->next != NULL && 
-               start->next->priority < d->priority) { 
+        while (start->next != NULL && start->next->priority < d->priority) { 
             start = start->next; 
         } 
   
@@ -197,7 +196,6 @@ int isEmpty(Node** head)
 { 
     return (*head) == NULL; 
 } 
-
 void pushNeighbors(board *brd,int numMoves,Node *pq) {
    int i,j,stop=0;
    int **temp,**t;
@@ -209,23 +207,26 @@ void pushNeighbors(board *brd,int numMoves,Node *pq) {
 	   }
 	   if(stop==1) break;
     }
-    printf("\n foundspace for pushing");
 	if(j-1>=0) {
-			printf("pushd");
 		copy(temp,brd->data);
-			printf("copyd");
 		swap(temp,i,j-1,i,j);
-			printf("swapd");
 		board *lChild = newBoard(temp,manhattan(temp)+numMoves);
 		lChild->parent = brd;
-		push(&pq,lChild);
-		display(lChild->data);	
+		if(pq == NULL ) {
+			pq = newNode(lChild);
+		}
+		else
+		push(&pq,lChild);	
 	}
 	if(i-1>=0) {
 		copy(temp,brd->data);
 		swap(temp,i-1,j,i,j);
 		board *uChild = newBoard(temp,manhattan(temp)+numMoves);
 		uChild->parent = brd;
+		if(pq == NULL) {
+			pq = newNode(uChild);
+		}
+		else
 		push(&pq,uChild);
 		//display(temp);	
 	}
@@ -234,6 +235,10 @@ void pushNeighbors(board *brd,int numMoves,Node *pq) {
 		swap(temp,i+1,j,i,j);
 		board *dChild = newBoard(temp,manhattan(temp)+numMoves);
 		dChild->parent = brd;
+		if(pq == NULL) {
+			pq = newNode(dChild);
+		}
+		else
 		push(&pq,dChild);
 		//display(temp);	
 	}
@@ -242,55 +247,44 @@ void pushNeighbors(board *brd,int numMoves,Node *pq) {
 		swap(temp,i,j+1,i,j);
 		board *rChild = newBoard(temp,manhattan(temp)+numMoves);
 	    rChild->parent = brd;
+	    if(pq == NULL) {
+			pq = newNode(rChild);
+		}
+		else
 		push(&pq,rChild);
 		//display(temp);	
 	}
 	//deallocate_mem(&temp);
 }
-void printPath(board * brd) {
-	if(brd == NULL) return;
-	printPath(brd->parent);
-	display(brd->data);
-	
-}
-void solve(int **arr) {
-	int numMoves = 0;
-	board *root = newBoard(arr,manhattan(arr)); //creating board for root
-	Node *pq = newNode(root); //pushed root into pq
-	//loop finds live node
-	//pushes its neighbors into pq
-	//finally deletes live from pq
-	printf("before while");
-	while(!isEmpty(&pq)) {
-		printf("\nEntered while");
-		board *min = peek(&pq); //gives highest priority i.e, least number
-		pop(&pq); //deleted the top node
-		if(isGoal(min->data)) {
-			printf("Goaled sorry");
-			printPath(min);
-			return;
-		}
-		numMoves=numMoves+1;
-	//push neighbors into queue
-	pushNeighbors(min,numMoves,pq);	
-	}
-}
 int main() 
 { 
     // Create a Priority Queue 
-int i,j,**arr,numMoves=0;
+int i,j,**arr;
 	printf("Enter input:");
 	scanf("%d",&N);
 	arr = malloc( N*sizeof(int *) );        // N is the number of the rows
 	for (i = 0 ; i < N ; i++)
      arr[i] = malloc( N*sizeof(int) );     // N is the number of the columns
-    
     for(i=0;i<N;i++) 
     	for(j=0;j<N;j++) {
     		scanf("%d",&arr[i][j]);
 		}
 		printf("\n");
-	createGoal();
-	solve(arr);
+	board* root = newBoard(arr,manhattan(arr));	
+	Node *pq = newNode(root);
+	
+    pushNeighbors(root,++numMoves,pq);
+       	board *peeked = peek(&pq);
+    	printf("\n priority = %d",peeked->priority);
+		display(peeked->data);
+		pop(&pq);
+     while(!isEmpty(&pq)) {
+    	board *peeked = peek(&pq);
+    	printf("\n priority = %d",peeked->priority);
+		display(peeked->data);
+		printf("parent ");
+		display(peeked->parent->data);
+    	pop(&pq);
+	}
     return 0; 
 }
