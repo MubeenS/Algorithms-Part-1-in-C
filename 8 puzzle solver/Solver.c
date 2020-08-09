@@ -1,17 +1,23 @@
-
 #include "minPQ.h"
  //input 3 0 1 3 4 2 5 7 8 6 
 //input 3 8 1 3 4 0 2 7 6 5
 void solve(int ** arr) {
   board * root = newBoard(arr, NULL, 0);
   Node * pq = newNode(root);
+  int d=0;
   while (!isEmpty( & pq)) {
+  	d++;
     board * peeked = peek( & pq);
     if (isGoal(peeked -> data)) {
-      printf("Path");
+      printf("\nPath");
       printPath(peeked);
       return;
     }
+    //prints a dot to mind the user that code is running
+    if(d>=3000) {
+    	printf(". ");
+    	d=0;
+	} 
     pushNeighbors(peeked, pq);
     pop( & pq);
   }
