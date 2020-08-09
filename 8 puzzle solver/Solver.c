@@ -14,7 +14,7 @@ void solve(int ** arr) {
       return;
     }
     //prints a dot to mind the user that code is running
-    if(d>=3000) {
+    if(d>=2500) {
     	printf(". ");
     	d=0;
 	} 
